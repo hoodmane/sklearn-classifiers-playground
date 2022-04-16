@@ -188,6 +188,7 @@ module.exports = function (webpackEnv) {
 
   return {
     target: ['browserslist'],
+    externals: ["https://pyodide-cdn2.iodide.io/v0.20.0/full/pyodide.mjs"],
     mode: isEnvProduction ? 'production' : isEnvDevelopment && 'development',
     // Stop compilation early in production
     bail: isEnvProduction,

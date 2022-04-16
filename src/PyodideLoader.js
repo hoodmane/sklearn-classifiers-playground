@@ -9,10 +9,8 @@ export class PyodideLoader extends React.Component {
 
     async componentDidMount() {
         if (window.pyodide === undefined) {
-            let pyodidePkg = await import("pyodide/pyodide.js");
-            let pyodide = await pyodidePkg.loadPyodide({
-                indexURL: "https://cdn.jsdelivr.net/pyodide/v0.19.0/full/"
-            });
+            let pyodidePkg = await import("https://pyodide-cdn2.iodide.io/v0.20.0/full/pyodide.mjs");
+            let pyodide = await pyodidePkg.loadPyodide();
             await pyodide.loadPackage(["scikit-learn", "numpy", "matplotlib", "bokeh"]);
             window.pyodide = pyodide;
             console.log("pyodide loaded successfully");
