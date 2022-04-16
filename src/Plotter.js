@@ -5,7 +5,7 @@ import * as Icon from 'react-bootstrap-icons';
 
 function ToolbarButton(props) {
     return (
-        <OverlayTrigger placement="right" overlay={<Tooltip id={props.key}>{props.title}</Tooltip>}>
+        <OverlayTrigger placement="right" overlay={<Tooltip>{props.title}</Tooltip>}>
             <Button {...props }/>
         </OverlayTrigger>
     )
@@ -88,16 +88,16 @@ export default class Plotter extends React.Component {
 
         return (
             <div className="toolbar">
-                <ButtonToolbar vertical>
-                    <ButtonGroup vertical>
+                <ButtonToolbar vertical="true">
+                    <ButtonGroup vertical="true">
                         {classButtons}
                     </ButtonGroup>
-                    <ButtonGroup vertical>
+                    <ButtonGroup vertical="true">
                         <Button onClick={e => this.handleFlagClick()} variant="outline-dark" disabled>
                             <Icon.Flag />
                         </Button>
                     </ButtonGroup>
-                    <ButtonGroup vertical>
+                    <ButtonGroup vertical="true">
                         <ToolbarButton onClick={e => this.handleClear()} key="erase" variant="outline-dark" title="Remove all points">
                             <Icon.EraserFill />
                         </ToolbarButton>
