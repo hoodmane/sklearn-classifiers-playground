@@ -27,7 +27,7 @@ function front_matter() {
 }
 
 function compute(values) {
-  return self.applet.compute(values);
+  return self.applet.compute.callKwargs(values);
 }
 
 Comlink.expose({

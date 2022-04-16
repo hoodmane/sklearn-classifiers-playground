@@ -27,7 +27,8 @@ class PyodideApplet extends React.Component {
     }
 
     async compute() {        
-        const output = await window.pyodideWorker.compute(this.state['values']);
+        const {classifier, dataset_type, random_state, added_points} = this.state.values;
+        const output = await window.pyodideWorker.compute({classifier, dataset_type, random_state, added_points});
         this.setState({
             computing: false,
             plotContent: output

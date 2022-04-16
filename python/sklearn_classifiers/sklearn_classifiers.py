@@ -82,18 +82,12 @@ class SklearnClassifiers:
             }
         )
 
-    def compute(self, input_js):
-        d = input_js.to_py()
-        d["added_points"] = tuple(HashableMap(p) for p in d["added_points"])
-        input_py = HashableMap(d)
-        return self.compute_inner(input_py)
+    def compute(self, *, classifier, dataset_type, random_state, added_points):
+        added_points = tuple(HashableMap(p) for p in added_points.to_py())
+        return self.compute_inner(classifier, dataset_type, random_state, added_points)
 
     @functools.lru_cache(maxsize=5)
-    def compute_inner(self, input):
-        classifier = input["classifier"]
-        dataset_type = input["dataset_type"]
-        random_state = int(input["seed"])
-        added_points = input["added_points"]
+    def compute_inner(self, classifier, dataset_type, random_state, added_points):
 
         plt.style.use("seaborn-white")
 
