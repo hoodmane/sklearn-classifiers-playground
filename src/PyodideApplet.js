@@ -19,26 +19,19 @@ class PyodideApplet extends React.Component {
 
     async setupParameters() {
         console.log("Setting up parameters...")
-        await window.pyodide.runPythonAsync(`
-        applet = ${this.props['pythonClass']}()
-        parameters = json.dumps(applet.front_matter())
-        `)
-        const parameters = JSON.parse(window.pyodide.globals.get("parameters"))
+        let sklearn_classifiers = window.pyodide.pyimport("sklearn_classifiers");
+        this.applet = sklearn_classifiers.SklearnClassifiers();
+        const parameters = this.applet.front_matter();
+        console.log({parameters});
         const values = Object.fromEntries(parameters["inputs"].map(i => [i['name'], i['value']]))
         console.log("Parameters from script front matter", parameters)
         console.log("Initial parameters:", values)
         this.setState({ parameters, values })
     }
 
-    async compute() {
-        window.inputs = JSON.stringify(this.state['values'])
-        console.log("Running computation with inputs ", window.inputs)
-        await window.pyodide.runPythonAsync(`
-            from js import inputs
-            output = applet.compute(inputs)
-        `)
-        const output = JSON.parse(window.pyodide.globals.get("output"))
-
+    async compute() {        
+        const output = this.applet.compute(this.state['values']);
+        console.log("compute output:", output);
         this.setState({
             computing: false,
             plotContent: output
@@ -117,14 +110,6 @@ class PyodideApplet extends React.Component {
     }
 
     async componentDidMount() {
-        let source = this.props["src"]
-
-        console.log("Running script at ", source)
-
-        let pySource = await (await fetch(source)).text()
-
-        await window.pyodide.runPythonAsync(pySource)
-
         _.defer(async () => {
             await this.setupParameters()
             await this.compute()

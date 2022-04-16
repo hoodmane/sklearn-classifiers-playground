@@ -9,9 +9,12 @@ export class PyodideLoader extends React.Component {
 
     async componentDidMount() {
         if (window.pyodide === undefined) {
-            let pyodidePkg = await import("https://pyodide-cdn2.iodide.io/v0.20.0/full/pyodide.mjs");
+            let sklearn_classifiers_tar_promise = fetch("./sklearn_classifiers.tar").then(resp => resp.arrayBuffer());
+            let pyodidePkg = await import("https://pyodide-cdn2.iodide.io/v0.20.0/full/pyodide.mjs" /* webpackIgnore: true */);
             let pyodide = await pyodidePkg.loadPyodide();
             await pyodide.loadPackage(["scikit-learn", "numpy", "matplotlib", "bokeh"]);
+            const sklearn_classifiers_tar = await sklearn_classifiers_tar_promise;
+            pyodide.unpackArchive(sklearn_classifiers_tar, "tar");
             window.pyodide = pyodide;
             console.log("pyodide loaded successfully");
         }

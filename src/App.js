@@ -9,8 +9,6 @@ function App() {
 
         <PyodideLoader>
           <PyodideApplet
-            src="/sklearn-classifiers-playground/py/sklearn_classifiers.py"
-            pythonClass="SklearnClassifiers"
             title="Scikit-Learn Classifiers Playground"
           />
         </PyodideLoader>

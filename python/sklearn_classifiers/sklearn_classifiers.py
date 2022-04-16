@@ -12,10 +12,15 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import minmax_scale
+from pyodide import to_js as _to_js
+from js import Object
 import io, base64, math
 import random
 import functools
 import json
+
+def to_js(obj):
+    return _to_js(obj, dict_converter=Object.fromEntries)
 
 class SklearnClassifiers:
     def __init__(self):
@@ -24,7 +29,7 @@ class SklearnClassifiers:
         self.axes = None
 
     def front_matter(self):
-        return {
+        return to_js({
             "name": "Scikit-Learn Classifiers Playground",
             "description": """
             This applet trains a classifier based on data with two features. The training data can contain up to 3
@@ -74,15 +79,18 @@ class SklearnClassifiers:
                 }
             ],
             "returns": "base-64-image"
-        }
+        })
+
+
+    def compute(self, input_js):
+        d = input_js.to_py()
+        d["added_points"] = tuple(d["added_points"])
+        input_py = tuple(d.items())
+        return self.compute_inner(input_py)
 
     @functools.lru_cache(maxsize=5)
-    def compute(self, input):
-        # hack only used for memoization; not necessary in general for python <-> javascript
-        # communication
-        input = json.loads(input)
-        self.last_input = input
-
+    def compute_inner(self, input_tuple):
+        input = dict(input_tuple)
         classifier = input["classifier"]
         dataset_type = input["dataset_type"]
         random_state = int(input["seed"])
@@ -222,10 +230,9 @@ class SklearnClassifiers:
         plt.savefig(buf, format='png')
         buf.seek(0)
 
-        out = json.dumps({
+        return to_js({
             'data': 'data:image/png;base64,' + base64.b64encode(buf.read()).decode('UTF-8'),
             'plot_attributes': {
                 'size': self.figure.canvas.get_width_height()
             }
         })
-        return out

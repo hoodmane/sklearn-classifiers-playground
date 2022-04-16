@@ -8,6 +8,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin');
 const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin');
 const TerserPlugin = require('terser-webpack-plugin');
+const ZipPlugin = require('zip-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
@@ -188,7 +189,6 @@ module.exports = function (webpackEnv) {
 
   return {
     target: ['browserslist'],
-    externals: ["https://pyodide-cdn2.iodide.io/v0.20.0/full/pyodide.mjs"],
     mode: isEnvProduction ? 'production' : isEnvDevelopment && 'development',
     // Stop compilation early in production
     bail: isEnvProduction,
@@ -746,6 +746,32 @@ module.exports = function (webpackEnv) {
             },
           },
         }),
+        function(compiler) {
+          compiler.hooks.thisCompilation.tap("MyTarPlugin", compilation => {
+            compilation.hooks.processAssets.tapPromise(
+              {
+                name: "MyTarPlugin",
+                stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+              },
+              async function(){
+                const tar = require("tar");
+                function streamToBuffer(stream) {
+                  return new Promise((resolve, reject) => {
+                    let buffers = [];
+                    stream.on('error', reject);
+                    stream.on('data', (data) => buffers.push(data));
+                    stream.on('end', () => resolve(Buffer.concat(buffers)));
+                  });
+                }
+                const buffer = await streamToBuffer(tar.create(
+                  {cwd : "python"},
+                  ['sklearn_classifiers']
+                ));
+                compilation.emitAsset("sklearn_classifiers.tar", new webpack.sources.RawSource(buffer));
+              }
+            );
+          });
+        }
     ].filter(Boolean),
     // Turn off performance processing because we utilize
     // our own hints via the FileSizeReporter
