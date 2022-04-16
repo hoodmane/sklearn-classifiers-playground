@@ -19,10 +19,7 @@ class PyodideApplet extends React.Component {
 
     async setupParameters() {
         console.log("Setting up parameters...")
-        let sklearn_classifiers = window.pyodide.pyimport("sklearn_classifiers");
-        this.applet = sklearn_classifiers.SklearnClassifiers();
-        const parameters = this.applet.front_matter();
-        console.log({parameters});
+        const parameters = await window.pyodideWorker.front_matter();
         const values = Object.fromEntries(parameters["inputs"].map(i => [i['name'], i['value']]))
         console.log("Parameters from script front matter", parameters)
         console.log("Initial parameters:", values)
@@ -30,8 +27,7 @@ class PyodideApplet extends React.Component {
     }
 
     async compute() {        
-        const output = this.applet.compute(this.state['values']);
-        console.log("compute output:", output);
+        const output = await window.pyodideWorker.compute(this.state['values']);
         this.setState({
             computing: false,
             plotContent: output

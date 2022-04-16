@@ -62,6 +62,9 @@ export default class Plotter extends React.Component {
     }
 
     handleDrop(e) {
+        if(!this.dragged){
+            return;
+        }
         const key = this.dragged.dataset.key
         let points = this.props.points
         const originalPoint = _.find(points, { key })

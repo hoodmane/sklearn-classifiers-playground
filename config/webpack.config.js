@@ -768,6 +768,8 @@ module.exports = function (webpackEnv) {
                   ['sklearn_classifiers']
                 ));
                 compilation.emitAsset("sklearn_classifiers.tar", new webpack.sources.RawSource(buffer));
+                let worker_buffer = fs.readFileSync("src/worker.js");
+                compilation.emitAsset("worker.js", new webpack.sources.RawSource(worker_buffer));
               }
             );
           });

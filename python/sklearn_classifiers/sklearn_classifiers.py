@@ -1,6 +1,10 @@
 # Adapted from https://scikit-learn.org/stable/auto_examples/gaussian_process/plot_gpc_iris.html#sphx-glr-auto-examples-gaussian-process-plot-gpc-iris-py
+from .hashable_map import HashableMap
+from .to_js import to_js
 
 import numpy as np
+import matplotlib
+matplotlib.use("agg")
 import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn.gaussian_process import GaussianProcessClassifier
@@ -12,15 +16,10 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import minmax_scale
-from pyodide import to_js as _to_js
-from js import Object
 import io, base64, math
-import random
 import functools
-import json
 
-def to_js(obj):
-    return _to_js(obj, dict_converter=Object.fromEntries)
+x = 0
 
 class SklearnClassifiers:
     def __init__(self):
@@ -84,13 +83,13 @@ class SklearnClassifiers:
 
     def compute(self, input_js):
         d = input_js.to_py()
-        d["added_points"] = tuple(d["added_points"])
-        input_py = tuple(d.items())
+        d["added_points"] = tuple(HashableMap(p) for p in d["added_points"])
+        input_py = HashableMap(d)
         return self.compute_inner(input_py)
 
+
     @functools.lru_cache(maxsize=5)
-    def compute_inner(self, input_tuple):
-        input = dict(input_tuple)
+    def compute_inner(self, input):
         classifier = input["classifier"]
         dataset_type = input["dataset_type"]
         random_state = int(input["seed"])
