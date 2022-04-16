@@ -20,8 +20,6 @@ from sklearn.preprocessing import minmax_scale
 import io, base64, math
 import functools
 
-x = 0
-
 
 class SklearnClassifiers:
     def __init__(self):
